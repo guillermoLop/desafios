@@ -76,4 +76,4 @@ filteredLabel.forEach((labels) => {
 
 //Boton clear para resetear la lista
 let clearBtn = document.getElementById("clear");
-clearBtn.onclick = () => {titlesList.innerHTML = ''};
+clearBtn.onclick = () => {titlesList.innerHTML = ''}; //opté por string vacío ya que si usaba .remove para poder volver a seleccionar títulos
