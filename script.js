@@ -1,6 +1,34 @@
 //TapeCollector v1.0
 //Alumno: Guillermo Lopez
 
+
+//Capturando elementos del HTML
+
+
+let addTitle = document.getElementById("title");
+let addLabel = document.getElementById("label");
+let addYear = document.getElementById("year");
+let addImdb = document.getElementById("imdb");
+let addSbmt = document.getElementById("addSbmt");
+let newTape = document.getElementById("newTape");
+let labelsHeader = document.getElementById("labelsHeader");
+let refresh = document.getElementById("refresh");
+let titlesList = document.getElementById("titlesList");
+let labelsList = document.getElementById("labels");
+
+
+//Boton para agregar títulos
+
+const saveMovie = (key, value) => {localStorage.setItem(key, value)}
+
+function funcTape(e) {
+  e.preventDefault();
+  let lastTape = new Tape(title.value, label.value, year.value, imdb.value)
+  saveMovie(imdb.value, JSON.stringify(lastTape))
+  newTape.reset();
+  }
+newTape.addEventListener("submit", funcTape);
+
 //Definiendo clase Tape
 
 class Tape {
@@ -12,7 +40,7 @@ class Tape {
   }
 }
 
-//Objetos Tape
+//Hard-code
 
 const tape001 = new Tape("Fuga de Absolon", "LK-TEL", 1994, "tt0110678");
 const tape002 = new Tape("Vengador Implacable", "Radiocom", 1981, "tt0084600");
@@ -31,9 +59,7 @@ const tape009 = new Tape("Cut & Run", "LAX", 1984, "tt0089338");
 const tape010 = new Tape("Intento de Fuga", "Bell Video", 1987, "tt0098346");
 const tape011 = new Tape("Demonios 2", "Gativideo", 1986, "tt0090930");
 
-//Array hard-codeado de la colección
-
-const tapes = [
+let tapes = [
   tape001,
   tape002,
   tape003,
@@ -47,33 +73,42 @@ const tapes = [
   tape011,
 ];
 
-
 let labelCollection = tapes.map((each) => each.label);
 let filteredLabel = [...new Set(labelCollection)];
 
-let labelsHeader = document.getElementById("labelsHeader");
-
-labelsHeader.innerText = "Ud. posee títulos editados por las siguientes videoeditoras";
-
-let labelsList = document.getElementById("labels");
-
-let titlesList = document.getElementById("titlesList");
-
-filteredLabel.forEach((labels) => {
-  let li = document.createElement("li");
-  li.innerText = labels;
-  labelsList.appendChild(li);
-  const btn = document.createElement("button")
-  btn.innerHTML = "Ver títulos";
-  labelsList.appendChild(btn);
-  const labelFilter = tapes.filter((tape) => tape.label == labels)
-  let titleFilter = labelFilter.map((tape) => tape.title)
-  let liBtn = document.createElement("li")
-  liBtn.innerHTML = titleFilter.join(", ");
-  btn.onclick = () => {titlesList.appendChild(liBtn)}
-});
 
 
-//Boton clear para resetear la lista
-let clearBtn = document.getElementById("clear");
-clearBtn.onclick = () => {titlesList.innerHTML = ''}; //opté por string vacío ya que si usaba .remove para poder volver a seleccionar títulos
+labelsHeader.innerText =
+"Ud. posee títulos editados por las siguientes videoeditoras";  
+
+
+//Boton refresh: actualiza el array hard-codeado con los objetos que encuentre en LS
+
+  refresh.onclick = () => {
+    labelsList.innerHTML = ""
+    for (let i = 0; i<localStorage.length; i++){
+      tapes.push(JSON.parse(localStorage.getItem(localStorage.key(i))))
+    }
+    labelCollection = tapes.map((each) => each.label);
+    filteredLabel = [...new Set(labelCollection)];
+    filteredLabel.forEach((labels) => {
+      let li = document.createElement("li");
+      li.innerText = labels;
+      labelsList.appendChild(li);
+      const btn = document.createElement("button");
+      btn.innerHTML = "Ver títulos";
+      labelsList.appendChild(btn);
+      const labelFilter = tapes.filter((tape) => tape.label == labels);
+      let titleFilter = labelFilter.map((tape) => tape.title);
+      let liBtn = document.createElement("li");
+      liBtn.innerHTML = titleFilter.join(", ");
+      btn.onclick = () => {
+        titlesList.appendChild(liBtn);
+      };
+    });
+  }
+
+//Boton clear de reset de titulos
+
+  let clearBtn = document.getElementById("clear");
+clearBtn.onclick = () => {titlesList.innerHTML = ''}
