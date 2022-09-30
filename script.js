@@ -1,9 +1,7 @@
 //TapeCollector v1.0
 //Alumno: Guillermo Lopez
 
-
 //Capturando elementos del HTML
-
 
 let addTitle = document.getElementById("title");
 let addLabel = document.getElementById("label");
@@ -15,18 +13,39 @@ let labelsHeader = document.getElementById("labelsHeader");
 let refresh = document.getElementById("refresh");
 let titlesList = document.getElementById("titlesList");
 let labelsList = document.getElementById("labels");
-
+let removeBtn = document.getElementById("remove");
+let imdbRmv = document.getElementById("imdbRmv");
 
 //Boton para agregar títulos
 
-const saveMovie = (key, value) => {localStorage.setItem(key, value)}
+const saveMovie = (key, value) => {
+  localStorage.setItem(key, value);
+};
+
+//function nullFilm() {
+//  newTape.reset();
+//  console.log("El título ya se encuentra ingresado")
+//}
 
 function funcTape(e) {
-  e.preventDefault();
-  let lastTape = new Tape(title.value, label.value, year.value, imdb.value)
-  saveMovie(imdb.value, JSON.stringify(lastTape))
-  newTape.reset();
+  if (
+    title.value == "" ||
+    label.value == "" ||
+    year.value == "" ||
+    imdb.value == ""
+  ) {
+    e.preventDefault();
+    newTape.reset();
+    console.log("ERROR: Llenar todos los campos");
+  } else {
+    e.preventDefault();
+    let lastTape = new Tape(title.value, label.value, year.value, imdb.value);
+    localStorage.getItem(imdb.value)
+      ? console.log("El título ya se encuentra ingresado")
+      : saveMovie(imdb.value, JSON.stringify(lastTape));
+    newTape.reset();
   }
+}
 newTape.addEventListener("submit", funcTape);
 
 //Definiendo clase Tape
@@ -76,39 +95,46 @@ let tapes = [
 let labelCollection = tapes.map((each) => each.label);
 let filteredLabel = [...new Set(labelCollection)];
 
-
-
 labelsHeader.innerText =
-"Ud. posee títulos editados por las siguientes videoeditoras";  
-
+  "Ud. posee títulos editados por las siguientes videoeditoras";
 
 //Boton refresh: actualiza el array hard-codeado con los objetos que encuentre en LS
 
-  refresh.onclick = () => {
-    labelsList.innerHTML = ""
-    for (let i = 0; i<localStorage.length; i++){
-      tapes.push(JSON.parse(localStorage.getItem(localStorage.key(i))))
-    }
-    labelCollection = tapes.map((each) => each.label);
-    filteredLabel = [...new Set(labelCollection)];
-    filteredLabel.forEach((labels) => {
-      let li = document.createElement("li");
-      li.innerText = labels;
-      labelsList.appendChild(li);
-      const btn = document.createElement("button");
-      btn.innerHTML = "Ver títulos";
-      labelsList.appendChild(btn);
-      const labelFilter = tapes.filter((tape) => tape.label == labels);
-      let titleFilter = labelFilter.map((tape) => tape.title);
-      let liBtn = document.createElement("li");
-      liBtn.innerHTML = titleFilter.join(", ");
-      btn.onclick = () => {
-        titlesList.appendChild(liBtn);
-      };
-    });
+refresh.onclick = () => {
+  labelsList.innerHTML = "";
+  for (let i = 0; i < localStorage.length; i++) {
+    tapes.push(JSON.parse(localStorage.getItem(localStorage.key(i))));
   }
+  labelCollection = tapes.map((each) => each.label);
+  filteredLabel = [...new Set(labelCollection)];
+  filteredLabel.forEach((labels) => {
+    let li = document.createElement("li");
+    li.innerText = labels;
+    labelsList.appendChild(li);
+    const btn = document.createElement("button");
+    btn.innerHTML = "Ver títulos";
+    labelsList.appendChild(btn);
+    const labelFilter = tapes.filter((tape) => tape.label == labels);
+    let titleFilter = labelFilter.map((tape) => tape.title);
+    let liBtn = document.createElement("li");
+    liBtn.innerHTML = titleFilter.join(", ");
+    btn.onclick = () => {
+      titlesList.appendChild(liBtn);
+    };
+  });
+};
 
 //Boton clear de reset de titulos
 
-  let clearBtn = document.getElementById("clear");
-clearBtn.onclick = () => {titlesList.innerHTML = ''}
+let clearBtn = document.getElementById("clear");
+clearBtn.onclick = () => {
+  titlesList.innerHTML = "";
+};
+
+removeBtn.onclick = () => {
+  console.log(imdbRmv.value);
+  localStorage.getItem(imdbRmv.value)
+    ? localStorage.removeItem(imdbRmv.value)
+    : console.log("El título no se encuentra ingresado");
+  imdbRmv.value = "";
+};
