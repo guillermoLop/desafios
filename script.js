@@ -16,16 +16,14 @@ let labelsList = document.getElementById("labels");
 let removeBtn = document.getElementById("remove");
 let imdbRmv = document.getElementById("imdbRmv");
 
+
+
 //Boton para agregar títulos
 
 const saveMovie = (key, value) => {
   localStorage.setItem(key, value);
 };
 
-//function nullFilm() {
-//  newTape.reset();
-//  console.log("El título ya se encuentra ingresado")
-//}
 
 function funcTape(e) {
   if (
@@ -36,13 +34,34 @@ function funcTape(e) {
   ) {
     e.preventDefault();
     newTape.reset();
-    console.log("ERROR: Llenar todos los campos");
+    Swal.fire({
+      title: 'Error!',
+      text: 'Debes completar todos los campos',
+      icon: 'error',
+      showConfirmButton: false,
+      timer: 1000,
+      })
   } else {
     e.preventDefault();
     let lastTape = new Tape(title.value, label.value, year.value, imdb.value);
-    localStorage.getItem(imdb.value)
-      ? console.log("El título ya se encuentra ingresado")
-      : saveMovie(imdb.value, JSON.stringify(lastTape));
+    if ((localStorage.getItem(imdb.value) != null)|| (tapes.some(e=>e.imdb === imdb.value))) {
+      Swal.fire({
+        title: 'Ups!',
+        text: 'El título ya se encuentra en tu colección',
+        icon: 'warning',
+        showConfirmButton: false,
+        timer: 1000,
+        })
+    }else{
+      saveMovie(imdb.value, JSON.stringify(lastTape))
+      Swal.fire({
+        title: 'Felicitaciones!',
+        text: 'Nuevo título en tu colección',
+        icon: 'success',
+        showConfirmButton: false,
+        timer: 1000,
+        })
+      }
     newTape.reset();
   }
 }
@@ -76,7 +95,7 @@ const tape007 = new Tape("Striker", "Alfa", 1988, "tt0094060");
 const tape008 = new Tape("Zona de Crimen", "Gativideo", 1988, "tt0094918");
 const tape009 = new Tape("Cut & Run", "LAX", 1984, "tt0089338");
 const tape010 = new Tape("Intento de Fuga", "Bell Video", 1987, "tt0098346");
-const tape011 = new Tape("Demonios 2", "Gativideo", 1986, "tt0090930");
+const tape011 = new Tape("Juego Letal", "Transeuropa", 1981, "tt0083000");
 
 let tapes = [
   tape001,
@@ -102,10 +121,12 @@ labelsHeader.innerText =
 
 refresh.onclick = () => {
   labelsList.innerHTML = "";
+  let collection = []
+  collection = collection.concat(tapes)
   for (let i = 0; i < localStorage.length; i++) {
-    tapes.push(JSON.parse(localStorage.getItem(localStorage.key(i))));
+    collection.push(JSON.parse(localStorage.getItem(localStorage.key(i))));
   }
-  labelCollection = tapes.map((each) => each.label);
+  labelCollection = collection.map((each) => each.label);
   filteredLabel = [...new Set(labelCollection)];
   filteredLabel.forEach((labels) => {
     let li = document.createElement("li");
@@ -114,8 +135,8 @@ refresh.onclick = () => {
     const btn = document.createElement("button");
     btn.innerHTML = "Ver títulos";
     labelsList.appendChild(btn);
-    const labelFilter = tapes.filter((tape) => tape.label == labels);
-    let titleFilter = labelFilter.map((tape) => tape.title);
+    const labelFilter = collection.filter((tape) => tape.label == labels);
+    let titleFilter = labelFilter.map((tape) => (tape.title+" "+"("+tape.year+")"));
     let liBtn = document.createElement("li");
     liBtn.innerHTML = titleFilter.join(", ");
     btn.onclick = () => {
