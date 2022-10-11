@@ -15,15 +15,15 @@ let titlesList = document.getElementById("titlesList");
 let labelsList = document.getElementById("labels");
 let removeBtn = document.getElementById("remove");
 let imdbRmv = document.getElementById("imdbRmv");
-
-
+let titlesArr = document.getElementById("titlesArr");
+let titlesBtn = document.getElementById("titlesBtn");
+let info = document.getElementById("info");
 
 //Boton para agregar títulos
 
 const saveMovie = (key, value) => {
   localStorage.setItem(key, value);
 };
-
 
 function funcTape(e) {
   if (
@@ -35,33 +35,36 @@ function funcTape(e) {
     e.preventDefault();
     newTape.reset();
     Swal.fire({
-      title: 'Error!',
-      text: 'Debes completar todos los campos',
-      icon: 'error',
+      title: "Error!",
+      text: "Debes completar todos los campos",
+      icon: "error",
       showConfirmButton: false,
       timer: 1000,
-      })
+    });
   } else {
     e.preventDefault();
     let lastTape = new Tape(title.value, label.value, year.value, imdb.value);
-    if ((localStorage.getItem(imdb.value) != null)|| (tapes.some(e=>e.imdb === imdb.value))) {
+    if (
+      localStorage.getItem(imdb.value) != null ||
+      tapes.some((e) => e.imdb === imdb.value)
+    ) {
       Swal.fire({
-        title: 'Ups!',
-        text: 'El título ya se encuentra en tu colección',
-        icon: 'warning',
+        title: "Ups!",
+        text: "El título ya se encuentra en tu colección",
+        icon: "warning",
         showConfirmButton: false,
         timer: 1000,
-        })
-    }else{
-      saveMovie(imdb.value, JSON.stringify(lastTape))
+      });
+    } else {
+      saveMovie(imdb.value, JSON.stringify(lastTape));
       Swal.fire({
-        title: 'Felicitaciones!',
-        text: 'Nuevo título en tu colección',
-        icon: 'success',
+        title: "Felicitaciones!",
+        text: "Nuevo título en tu colección",
+        icon: "success",
         showConfirmButton: false,
         timer: 1000,
-        })
-      }
+      });
+    }
     newTape.reset();
   }
 }
@@ -121,8 +124,8 @@ labelsHeader.innerText =
 
 refresh.onclick = () => {
   labelsList.innerHTML = "";
-  let collection = []
-  collection = collection.concat(tapes)
+  let collection = [];
+  collection = collection.concat(tapes);
   for (let i = 0; i < localStorage.length; i++) {
     collection.push(JSON.parse(localStorage.getItem(localStorage.key(i))));
   }
@@ -136,12 +139,36 @@ refresh.onclick = () => {
     btn.innerHTML = "Ver títulos";
     labelsList.appendChild(btn);
     const labelFilter = collection.filter((tape) => tape.label == labels);
-    let titleFilter = labelFilter.map((tape) => (tape.title+" "+"("+tape.year+")"));
+    let titleFilter = labelFilter.map(
+      (tape) => tape.title + " " + "(" + tape.year + ")"
+    );
     let liBtn = document.createElement("li");
     liBtn.innerHTML = titleFilter.join(", ");
     btn.onclick = () => {
       titlesList.appendChild(liBtn);
     };
+  });
+};
+
+titlesBtn.onclick = () => {
+  titlesArr.innerHTML = "";
+  let collection = [];
+  collection = collection.concat(tapes);
+  for (let i = 0; i < localStorage.length; i++) {
+    collection.push(JSON.parse(localStorage.getItem(localStorage.key(i))));
+  }
+  collection.forEach((title) => {
+    let li = document.createElement("li");
+    let btn = document.createElement("button");
+    btn.innerText = title.title + " (" + title.year + ")";
+    btn.onclick = () => {
+      fetch(`http://www.omdbapi.com/?i=${title.imdb}&apikey=357beecc`)
+        .then((resp) => resp.json())
+        .then((data) => {
+          info.innerHTML = JSON.stringify(data.Plot) ;
+        });
+    };
+    titlesArr.appendChild(btn);
   });
 };
 
